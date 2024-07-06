@@ -1,4 +1,4 @@
-﻿using API.Dto;
+﻿/*using API.Dto;
 using API.Entities;
 using API.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -25,7 +25,7 @@ namespace API.Controllers
             var userName = _config["UserCredentials:Email"];
             var password = _config["UserCredentials:Password"];
 
-            if ((loginDto.Username != userName) || (loginDto.Password != password)) return BadRequest("Username or Password is not correct");
+            if ((loginDto.Email != userName) || (loginDto.Password != password)) return BadRequest("Username or Password is not correct");
 
             var user = new AppUser
             {
@@ -42,3 +42,4 @@ namespace API.Controllers
         }
     }
 }
+*/

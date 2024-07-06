@@ -1,4 +1,4 @@
-﻿namespace API.Dto
+﻿/*namespace API.Dto
 {
     public class TokenResponse
     {
@@ -9,3 +9,4 @@
         public string scope { get; set; }
     }
 }
+*/
