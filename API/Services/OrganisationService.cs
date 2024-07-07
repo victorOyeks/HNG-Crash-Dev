@@ -66,5 +66,11 @@ namespace API.Services
 
             await _organisationRepository.AddUserToOrganisationAsync(userId, organisationId);
         }
+
+
+        public async Task<UserOrganisation> GetUserOrganisationAsync(string userId, string organisationId)
+        {
+            return await _userOrganisationRepository.GetUserOrganisationAsync(userId, organisationId);
+        }
     }
 }

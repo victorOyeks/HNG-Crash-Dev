@@ -5,6 +5,7 @@ using API.Interfaces;
 using API.Repositories;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace API.Services
 {
@@ -31,9 +32,9 @@ namespace API.Services
             {
                 return (false, "Email already exists", null, null);
             }
+
             var user = new AppUser
             {
-
                 UserId = Guid.NewGuid().ToString(),
                 FirstName = request.FirstName,
                 LastName = request.LastName,
@@ -42,22 +43,31 @@ namespace API.Services
                 Phone = request.Phone,
             };
 
-            await _userRepository.AddUserAsync(user);
-
-            var organisation = await _organisationService.CreateOrganisationAsync(user.UserId, request.FirstName);
-
-            var userOrganisation = new UserOrganisation
+            try
             {
-                AppUser = user,
-                Organisation = organisation,
-            };
+                await _userRepository.AddUserAsync(user);
 
-            await _userOrganisationRepository.AddUserOrganisationAsync(userOrganisation);
+                var organisation = await _organisationService.CreateOrganisationAsync(user.UserId, request.FirstName);
 
-            var token = _tokenService.CreateToken(user);
+                var userOrganisation = new UserOrganisation
+                {
+                    AppUser = user,
+                    Organisation = organisation,
+                };
 
-            return (true, null, user, token);
+                await _userOrganisationRepository.AddUserOrganisationAsync(userOrganisation);
+
+                var token = _tokenService.CreateToken(user);
+
+                return (true, null, user, token);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during user registration: {ex.Message}");
+                return (false, "Registration unsuccessful", null, null);
+            }
         }
+
 
         public async Task<(bool IsSuccess, string ErrorMessage, AppUser AppUser, string Token)> LoginAsync(LoginDto  request)
         {
@@ -80,6 +90,26 @@ namespace API.Services
         public async Task<AppUser> GetUserByIdAsync(string id)
         {
             return await _userRepository.GetUserByIdAsync(id);
+        }
+
+
+        public async Task<bool> UsersBelongToSameOrg(string userId1, string userId2)
+        {
+            var userOrganisations1 = await _userOrganisationRepository.GetUserOrganisationsAsync(userId1);
+            var userOrganisations2 = await _userOrganisationRepository.GetUserOrganisationsAsync(userId2);
+
+            if (userOrganisations1 == null || userOrganisations2 == null)
+            {
+                return false;
+            }
+
+            var organisationIds1 = userOrganisations1.Select(uo => uo.UserOrganisations);
+            var organisationIds2 = userOrganisations2.Select(uo => uo.UserOrganisations);
+
+
+            var commonOrganisationIds = organisationIds1.Intersect(organisationIds2);
+
+            return commonOrganisationIds.Any();
         }
     }
 }

@@ -6,7 +6,7 @@ using Moq;
 using System.IdentityModel.Tokens.Jwt;
 using Xunit;
 
-namespace API.API.Tests
+namespace API.API.Tests.tests
 {
     public class TokenServiceTest
     {
@@ -35,16 +35,27 @@ namespace API.API.Tests
                 LastName = "Bond"
             };
 
-         
+            // Act
             var token = _tokenService.CreateToken(user);
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token) as JwtSecurityToken;
 
-    
+            // Assert
             Assert.NotNull(jwtToken);
             Assert.Contains(jwtToken.Claims, c => c.Type == JwtRegisteredClaimNames.Email && c.Value == user.Email);
             Assert.Contains(jwtToken.Claims, c => c.Type == "userId" && c.Value == user.UserId);
             Assert.Contains(jwtToken.Claims, c => c.Type == JwtRegisteredClaimNames.GivenName && c.Value == user.FirstName);
+
+            // Check token expiration
+            var expClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp);
+            Assert.NotNull(expClaim);
+
+            // Convert expiration claim value to DateTime
+            var exp = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expClaim.Value)).UtcDateTime;
+            var expectedExpiration = DateTime.UtcNow.AddDays(1);
+
+            // Assert expiration time is approximately as expected (within a reasonable tolerance)
+            Assert.True((expectedExpiration - exp).TotalMinutes < 1, "Token expiration time is not as expected.");
         }
     }
 }

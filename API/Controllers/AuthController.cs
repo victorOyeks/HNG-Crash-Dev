@@ -1,6 +1,7 @@
 ﻿using API.Services;
 using Microsoft.AspNetCore.Mvc;
 using API.Dto;
+using System.Diagnostics;
 
 namespace API.Controllers
 {
@@ -19,9 +20,17 @@ namespace API.Controllers
         public async Task<IActionResult> Register(RegisterDto request)
         {
             var result = await _userService.RegisterAsync(request);
+
             if (!result.IsSuccess)
             {
-                return BadRequest(new { status = "Bad request", message = "Registration unsuccessful", statusCode = 400 });
+                if (result.ErrorMessage == "Email already exists")
+                {
+                    return BadRequest(new { status = "Bad request", message = "Email already exists", statusCode = 400 });
+                }
+                else
+                {
+                    return BadRequest(new { status = "Bad request", message = "Registration unsuccessful", statusCode = 400 });
+                }
             }
 
             return Created("", new
@@ -33,15 +42,17 @@ namespace API.Controllers
                     accessToken = result.Token,
                     user = new
                     {
-                        result.AppUser.UserId,
-                        result.AppUser.FirstName,
-                        result.AppUser.LastName,
-                        result.AppUser.Email,
-                        result.AppUser.Phone
+                        UserId = result.AppUser.UserId,
+                        FirstName = result.AppUser.FirstName,
+                        LastName = result.AppUser.LastName,
+                        Email = result.AppUser.Email,
+                        Phone = result.AppUser.Phone
                     }
                 }
             });
         }
+
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto request)

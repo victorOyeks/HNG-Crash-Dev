@@ -8,5 +8,6 @@ namespace API.Services
         Task<(bool IsSuccess, string ErrorMessage, AppUser AppUser, string Token)> RegisterAsync(RegisterDto request);
         Task<(bool IsSuccess, string ErrorMessage, AppUser AppUser, string Token)> LoginAsync(LoginDto request);
         Task<AppUser> GetUserByIdAsync(string id);
+        Task<bool> UsersBelongToSameOrg(string userId1, string userId2);
     }
 }

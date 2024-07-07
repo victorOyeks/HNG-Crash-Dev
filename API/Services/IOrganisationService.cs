@@ -9,5 +9,6 @@ namespace API.Services
         Task<Organisation> GetOrganisationByIdAsync(string id);
         Task<Organisation> CreateOrganisationAsync(string name, string description, string userId);
         Task AddUserToOrganisationAsync(string userId, string organisationId);
+        public Task<UserOrganisation> GetUserOrganisationAsync(string userId, string organisationId);
     }
 }

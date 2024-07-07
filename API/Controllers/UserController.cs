@@ -19,8 +19,10 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null)
+            var currentUserId = User.FindFirst("userId")?.Value;
+
+            var requestedUser = await _userService.GetUserByIdAsync(id);
+            if (requestedUser == null)
             {
                 return NotFound(new
                 {
@@ -30,17 +32,27 @@ namespace API.Controllers
                 });
             }
 
+            var currentUser = await _userService.GetUserByIdAsync(currentUserId);
+            var isCurrentUser = requestedUser.UserId == currentUserId;
+
+            var usersBelongToSameOrg = await _userService.UsersBelongToSameOrg(currentUserId, id);
+
+            if (!isCurrentUser && !usersBelongToSameOrg)
+            {
+                return Forbid();
+            }
+
             return Ok(new
             {
                 status = "success",
                 message = "User record retrieved successfully",
                 data = new
                 {
-                    user.UserId,
-                    user.FirstName,
-                    user.LastName,
-                    user.Email,
-                    user.Phone
+                    requestedUser.UserId,
+                    requestedUser.FirstName,
+                    requestedUser.LastName,
+                    requestedUser.Email,
+                    requestedUser.Phone
                 }
             });
         }
