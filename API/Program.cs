@@ -22,9 +22,8 @@ builder.Services.AddControllers(option =>
     option.Filters.Add<ValidationFilter>();
 });
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
-builder.Services.AddHttpContextAccessor();
 
+// Swagger
 builder.Services.AddSwaggerGen(option =>
 {
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
@@ -44,11 +43,11 @@ builder.Services.AddSwaggerGen(option =>
             {
                 Reference = new OpenApiReference
                 {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
                 }
             },
-            new string[]{}
+            Array.Empty<string>()
         }
     });
 });
@@ -94,14 +93,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.Listen(IPAddress.Any, 9937);
 });
 
-
-// app builder
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -125,7 +121,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
