@@ -16,7 +16,7 @@ namespace API.API.Tests.tests
         public TokenServiceTest()
         {
             _configurationMock = new Mock<IConfiguration>();
-            _configurationMock.SetupGet(x => x["JWT:SigningKey"]).Returns("wuouwowioiif08484nf9j4fopj2ijffjo2kmskllvekonveivevkenvne09208420iv2vemep249u92u42vealkej0jgp");
+            _configurationMock.SetupGet(x => x["JWT:SigningKey"]).Returns("thisisjsutarandomtestsecretkeyifjsutarandomtestsecretkeyifjsutarandomtestsecre");
             _configurationMock.SetupGet(x => x["JWT:Issuer"]).Returns("http://localhost:5246");
             _configurationMock.SetupGet(x => x["JWT:Audience"]).Returns("http://localhost:5246");
 
@@ -35,12 +35,10 @@ namespace API.API.Tests.tests
                 LastName = "Bond"
             };
 
-            // Act
             var token = _tokenService.CreateToken(user);
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token) as JwtSecurityToken;
 
-            // Assert
             Assert.NotNull(jwtToken);
             Assert.Contains(jwtToken.Claims, c => c.Type == JwtRegisteredClaimNames.Email && c.Value == user.Email);
             Assert.Contains(jwtToken.Claims, c => c.Type == "userId" && c.Value == user.UserId);
@@ -50,7 +48,6 @@ namespace API.API.Tests.tests
             var expClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp);
             Assert.NotNull(expClaim);
 
-            // Convert expiration claim value to DateTime
             var exp = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expClaim.Value)).UtcDateTime;
             var expectedExpiration = DateTime.UtcNow.AddDays(1);
 
