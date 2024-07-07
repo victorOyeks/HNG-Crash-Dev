@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,15 +94,15 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-var port = 9937; 
+
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(port);
+    options.Listen(IPAddress.Any, 9937);
 });
+
 
 // app builder
 var app = builder.Build();
-
 
 using (var scope = app.Services.CreateScope())
 {
