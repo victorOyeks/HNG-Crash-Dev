@@ -93,6 +93,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+var port = 9937; 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(port);
+});
+
 // app builder
 var app = builder.Build();
 
